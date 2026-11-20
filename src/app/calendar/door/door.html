@@ -1,0 +1,39 @@
+<button type="button" class="door" [attr.aria-label]="label()" (click)="toggle()">
+  <span class="opening">
+    <img
+      class="picture"
+      [src]="imageSrc()"
+      [alt]="'Katzenbild hinter Türchen ' + config().day"
+      draggable="false"
+    />
+  </span>
+
+  <span class="wing wing-left">
+    <span class="face face-front"
+      ><span class="number">{{ config().day }}</span></span
+    >
+    <span class="face face-back"></span>
+  </span>
+  <span class="wing wing-right">
+    <span class="face face-front"
+      ><span class="number">{{ config().day }}</span></span
+    >
+    <span class="face face-back"></span>
+  </span>
+
+  <span class="sparkles" aria-hidden="true">
+    @for (sparkle of sparkles(); track sparkle.id) {
+      <span
+        class="sparkle"
+        [class.round]="sparkle.round"
+        [style.--sx]="sparkle.x"
+        [style.--sy]="sparkle.y"
+        [style.--size]="sparkle.size"
+        [style.--rot]="sparkle.rotation"
+        [style.--delay]="sparkle.delay"
+        [style.--duration]="sparkle.duration"
+        [style.--color]="sparkle.color"
+      ></span>
+    }
+  </span>
+</button>

@@ -1,0 +1,321 @@
+:host {
+  --door-size: var(--cell);
+  --radius: calc(var(--door-size) * 0.08);
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: var(--door-size);
+  height: var(--door-size);
+}
+
+/* Offene (und gerade schließende) Türen liegen über den Nachbarn, damit die Flügel nicht verdeckt werden. */
+:host(.is-open),
+:host(.is-closing) {
+  z-index: 3;
+}
+
+/* Winterzauber-Verläufe (reihum nach Nummer) + Gold für die 24 */
+:host(.theme-ice) {
+  --door-gradient: linear-gradient(135deg, #83a4d4, #b6fbff);
+  --number-color: #1b1446;
+}
+:host(.theme-lavender) {
+  --door-gradient: linear-gradient(135deg, #a18cd1, #fbc2eb);
+  --number-color: #1b1446;
+}
+:host(.theme-mint) {
+  --door-gradient: linear-gradient(135deg, #43c6ac, #f8ffae);
+  --number-color: #1b1446;
+}
+:host(.theme-gold) {
+  --door-size: calc(var(--cell) * 2 + var(--gap));
+  --door-gradient: linear-gradient(135deg, #aa771c, #fcf6ba, #bf953f);
+  --number-color: #4a3206;
+}
+
+.door {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius);
+  background: transparent;
+  font: inherit;
+  cursor: pointer;
+  perspective: calc(var(--door-size) * 5);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.door:focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: 4px;
+}
+
+/* Türöffnung mit dem Bild */
+.opening {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: var(--radius);
+  background: #0d0a26;
+  box-shadow: 0 calc(var(--door-size) * 0.04) calc(var(--door-size) * 0.12) rgb(0 0 0 / 45%);
+}
+
+.opening::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 0 calc(var(--door-size) * 0.08) rgb(0 0 0 / 55%);
+  pointer-events: none;
+}
+
+:host(.theme-gold) .opening {
+  box-shadow:
+    0 calc(var(--door-size) * 0.04) calc(var(--door-size) * 0.12) rgb(0 0 0 / 45%),
+    0 0 calc(var(--door-size) * 0.12) rgb(252 246 186 / 35%);
+}
+
+.picture {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  user-select: none;
+}
+
+/* Doppeltür: zwei Flügel, die in 3D nach außen aufschwingen.
+   95° hält die offenen Flügel schmal, damit sie die Bilder der Nachbartüren nicht verdecken. */
+.wing {
+  position: absolute;
+  top: 0;
+  width: 50%;
+  height: 100%;
+  transform: rotateY(0deg);
+  transform-style: preserve-3d;
+  /* Schließen: beschleunigt zu und federt kurz nach (Werte > 1 = Überschwingen) */
+  transition: transform 560ms cubic-bezier(0.55, 0, 0.6, 1.45);
+}
+
+.wing-left {
+  left: 0;
+  transform-origin: left center;
+}
+
+.wing-right {
+  right: 0;
+  transform-origin: right center;
+}
+
+:host(.is-open) .wing {
+  /* Öffnen: weich auslaufend */
+  transition: transform 800ms cubic-bezier(0.16, 0.84, 0.3, 1);
+}
+
+:host(.is-open) .wing-left {
+  transform: rotateY(-95deg);
+}
+
+:host(.is-open) .wing-right {
+  transform: rotateY(95deg);
+}
+
+.face {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  backface-visibility: hidden;
+  background-image: var(--door-gradient);
+  background-size: 200% 100%;
+}
+
+/* Beide Flügel zeigen je eine Hälfte desselben Verlaufs → nahtlos über die ganze Tür */
+.wing-left .face-front {
+  border-radius: var(--radius) 0 0 var(--radius);
+  background-position: left center;
+  box-shadow: inset -1px 0 0 rgb(27 20 70 / 20%);
+}
+
+.wing-right .face-front {
+  border-radius: 0 var(--radius) var(--radius) 0;
+  background-position: right center;
+  box-shadow: inset 1px 0 0 rgb(255 255 255 / 40%);
+}
+
+/* Glanz auf der Vorderseite */
+.face-front::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(160deg, rgb(255 255 255 / 35%), transparent 45%);
+  pointer-events: none;
+}
+
+/* Kleine Türknäufe an der Mittelfuge */
+.face-front::after {
+  content: '';
+  position: absolute;
+  bottom: 12%;
+  width: calc(var(--door-size) * 0.05);
+  height: calc(var(--door-size) * 0.05);
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 35% 35%,
+    #fff,
+    rgb(255 255 255 / 55%) 60%,
+    rgb(27 20 70 / 35%)
+  );
+  box-shadow: 0 1px 2px rgb(0 0 0 / 35%);
+}
+
+.wing-left .face-front::after {
+  right: 6%;
+}
+
+.wing-right .face-front::after {
+  left: 6%;
+}
+
+/* Rückseite der Flügel (sichtbar, wenn die Tür offen ist) */
+.face-back {
+  transform: rotateY(180deg);
+  background-image: linear-gradient(rgb(14 10 40 / 38%), rgb(14 10 40 / 38%)), var(--door-gradient);
+  background-size:
+    100% 100%,
+    200% 100%;
+}
+
+.wing-left .face-back {
+  border-radius: 0 var(--radius) var(--radius) 0;
+  background-position:
+    0 0,
+    left center;
+}
+
+.wing-right .face-back {
+  border-radius: var(--radius) 0 0 var(--radius);
+  background-position:
+    0 0,
+    right center;
+}
+
+/* Die Zahl liegt über beiden Flügeln und teilt sich beim Öffnen an der Fuge */
+.number {
+  position: absolute;
+  top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 200%;
+  height: 100%;
+  font-family: 'Mountains of Christmas', cursive;
+  font-weight: 700;
+  font-size: calc(var(--door-size) * 0.5);
+  line-height: 1;
+  color: var(--number-color);
+  text-shadow:
+    0 1px 0 rgb(255 255 255 / 55%),
+    0 0 calc(var(--door-size) * 0.08) rgb(255 255 255 / 35%);
+  user-select: none;
+}
+
+.wing-left .number {
+  left: 0;
+}
+
+.wing-right .number {
+  left: -100%;
+}
+
+/* Wackeln, sobald die Tür zugeschnappt ist */
+:host(.is-closing) .door {
+  animation: door-wobble 420ms ease-in-out 470ms;
+}
+
+@keyframes door-wobble {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  20% {
+    transform: rotate(-3deg) scale(1.03);
+  }
+  40% {
+    transform: rotate(2.4deg) scale(1.02);
+  }
+  60% {
+    transform: rotate(-1.4deg);
+  }
+  80% {
+    transform: rotate(0.6deg);
+  }
+}
+
+/* Glitzer beim Öffnen */
+.sparkles {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  filter: drop-shadow(0 0 3px rgb(255 255 255 / 85%));
+}
+
+.sparkle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: var(--size);
+  height: var(--size);
+  background: var(--color);
+  clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%);
+  opacity: 0;
+  animation: sparkle-fly var(--duration) cubic-bezier(0.12, 0.7, 0.3, 1) var(--delay) forwards;
+}
+
+.sparkle.round {
+  width: calc(var(--size) * 0.55);
+  height: calc(var(--size) * 0.55);
+  clip-path: none;
+  border-radius: 50%;
+  box-shadow: 0 0 calc(var(--size) * 0.6) var(--color);
+}
+
+@keyframes sparkle-fly {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.2) rotate(0deg);
+  }
+  15% {
+    opacity: 1;
+  }
+  70% {
+    opacity: 1;
+    transform: translate(-50%, -50%)
+      translate(calc(var(--sx) * var(--door-size)), calc(var(--sy) * var(--door-size))) scale(1)
+      rotate(var(--rot));
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%)
+      translate(
+        calc(var(--sx) * var(--door-size) * 1.12),
+        calc(var(--sy) * var(--door-size) * 1.12 + var(--door-size) * 0.06)
+      )
+      scale(0.3) rotate(calc(var(--rot) * 1.6));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wing,
+  :host(.is-open) .wing {
+    transition-duration: 1ms;
+  }
+
+  :host(.is-closing) .door {
+    animation: none;
+  }
+}

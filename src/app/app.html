@@ -1,0 +1,11 @@
+<app-snowfall />
+
+<main class="page">
+  <h1 class="title">CatCalendar</h1>
+
+  <app-calendar />
+
+  <button type="button" class="reset" [disabled]="!state.anyOpen()" (click)="state.closeAll()">
+    Alle Türen schließen
+  </button>
+</main>

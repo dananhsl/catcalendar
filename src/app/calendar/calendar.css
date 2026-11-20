@@ -1,0 +1,17 @@
+:host {
+  /* Feldgröße passt sich dem Fenster an (Breite und Höhe), damit der ganze Kalender sichtbar ist. */
+  --gap: clamp(8px, 1.1vw, 16px);
+  --cell: clamp(
+    72px,
+    min(calc((100vw - 8 * var(--gap) - 64px) / 9), calc((100vh - 230px - 2 * var(--gap)) / 3)),
+    200px
+  );
+  display: block;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(9, var(--cell));
+  grid-template-rows: repeat(3, var(--cell));
+  gap: var(--gap);
+}

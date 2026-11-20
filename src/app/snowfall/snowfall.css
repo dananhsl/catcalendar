@@ -1,0 +1,50 @@
+:host {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.flake {
+  position: absolute;
+  top: 0;
+  width: var(--size);
+  height: var(--size);
+  animation: snow-fall var(--duration) linear var(--delay) infinite;
+  will-change: transform;
+}
+
+.dot {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 6px rgb(255 255 255 / 60%);
+  animation: snow-sway var(--sway-duration) ease-in-out infinite alternate;
+}
+
+@keyframes snow-fall {
+  from {
+    transform: translate3d(0, -5vh, 0);
+  }
+  to {
+    transform: translate3d(var(--drift), 105vh, 0);
+  }
+}
+
+@keyframes snow-sway {
+  from {
+    transform: translateX(calc(var(--sway) * -1));
+  }
+  to {
+    transform: translateX(var(--sway));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :host {
+    display: none;
+  }
+}
